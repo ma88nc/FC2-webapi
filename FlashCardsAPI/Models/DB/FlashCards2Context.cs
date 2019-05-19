@@ -6,6 +6,12 @@ namespace FlashCardsAPI.Models.DB
 {
     public partial class FlashCards2Context : DbContext
     {
+        DbContextOptions<FlashCards2Context> _context;
+        public FlashCards2Context(DbContextOptions<FlashCards2Context> context)
+        {
+            _context = context;
+        }
+
         public virtual DbSet<Domains> Domains { get; set; }
         public virtual DbSet<Questions> Questions { get; set; }
         public virtual DbSet<QuestionTags> QuestionTags { get; set; }
@@ -18,8 +24,8 @@ namespace FlashCardsAPI.Models.DB
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer(@"");
+                string connString = _context.FindExtension<Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>().ConnectionString;
+                optionsBuilder.UseSqlServer(connString);
             }
         }
 

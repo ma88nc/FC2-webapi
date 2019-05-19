@@ -41,7 +41,8 @@ namespace FlashCardsAPI.Controllers
                                 ImagePath = q.ImagePath,
                                 IsActive = q.IsActive,
                                 IsVerified = q.IsVerified,
-                                DomainId = q.DomainId
+                                DomainId = q.DomainId,
+                                TimeMultiplier = q.TimeMultiplier
                             };
             return questions;
         }
@@ -69,7 +70,8 @@ namespace FlashCardsAPI.Controllers
                     ImagePath = q.ImagePath,
                     IsActive = q.IsActive,
                     IsVerified = q.IsVerified,
-                    DomainId = q.DomainId
+                    DomainId = q.DomainId,
+                    TimeMultiplier = q.TimeMultiplier
                 })
                 .SingleOrDefaultAsync(m => m.QuestionId == id);
 
@@ -107,7 +109,8 @@ namespace FlashCardsAPI.Controllers
                     ImagePath = q.ImagePath,
                     IsActive = q.IsActive,
                     IsVerified = q.IsVerified,
-                    DomainId = q.DomainId
+                    DomainId = q.DomainId,
+                    TimeMultiplier = q.TimeMultiplier
                 }
                 )
                 .ToList();

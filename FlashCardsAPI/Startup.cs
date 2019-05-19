@@ -9,6 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Web.Http.Cors;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using FlashCardsAPI.Services;
+using FlashCardsAPI.Helpers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardsAPI
 {
@@ -45,7 +52,38 @@ namespace FlashCardsAPI
 
             services.AddMvc();
 
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            // configure jwt authentication
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            // configure DI for application services
+            services.AddScoped<IUserService, UserService>();
+
             services.AddTransient<FlashCardsAPI.Models.DB.FlashCards2Context, FlashCardsAPI.Models.DB.FlashCards2Context>();
+            services.AddDbContext<FlashCardsAPI.Models.DB.FlashCards2Context>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
 
         }
 
@@ -58,6 +96,8 @@ namespace FlashCardsAPI
             }
 
             app.UseCors("AllowAll");
+
+            app.UseAuthentication();
 
             app.UseMvc();
         }
